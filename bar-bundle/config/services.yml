@@ -1,0 +1,5 @@
+services:
+  bar_bundle.command.bar_hi:
+    class: OroChain\BarBundle\CLI\BarHiCommand
+    tags:
+      - { name: console.command }
