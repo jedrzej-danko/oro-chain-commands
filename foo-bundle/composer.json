@@ -1,0 +1,20 @@
+{
+    "name": "oro-chain/foo-bundle",
+    "type": "symfony-bundle",
+    "require": {
+        "php": ">= 8.2",
+        "symfony/console": "^6.3",
+        "symfony/http-kernel": "^6.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "OroChain\\FooBundle\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "jedrzej",
+            "email": "jedrzej.danko@gmail.com"
+        }
+    ]
+}
