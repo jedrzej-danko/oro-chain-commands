@@ -1,4 +1,13 @@
 {
+    "oro-chain/bar-bundle": {
+        "version": "dev-main"
+    },
+    "oro-chain/chain-command-bundle": {
+        "version": "dev-main"
+    },
+    "oro-chain/foo-bundle": {
+        "version": "dev-main"
+    },
     "symfony/console": {
         "version": "6.3",
         "recipe": {

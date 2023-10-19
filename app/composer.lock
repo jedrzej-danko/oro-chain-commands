@@ -4,8 +4,95 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eaf3840901e73993aa2482ef20a928b9",
+    "content-hash": "154b1f84711503e456fe660f72ff10b4",
     "packages": [
+        {
+            "name": "oro-chain/bar-bundle",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../bar-bundle",
+                "reference": "4b2776b2160f589a2c56187a8cdad20669c8ed75"
+            },
+            "require": {
+                "php": ">= 8.2",
+                "symfony/console": "^6.3",
+                "symfony/http-kernel": "^6.3"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "OroChain\\BarBundle\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "jedrzej",
+                    "email": "jedrzej.danko@gmail.com"
+                }
+            ],
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "oro-chain/chain-command-bundle",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../chain-command-bundle",
+                "reference": "1244907ac409c497de42ed1f63edd6aa3a8b9e0e"
+            },
+            "require": {
+                "php": ">= 8.2",
+                "symfony/console": "^6.3",
+                "symfony/http-kernel": "^6.3"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "OroChain\\ChainCommandBundle\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "jedrzej",
+                    "email": "jedrzej.danko@gmail.com"
+                }
+            ],
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "oro-chain/foo-bundle",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../foo-bundle",
+                "reference": "945c5fe32199326d44a1140f588764ddd5db95db"
+            },
+            "require": {
+                "php": ">= 8.2",
+                "symfony/console": "^6.3",
+                "symfony/http-kernel": "^6.3"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "OroChain\\FooBundle\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "jedrzej",
+                    "email": "jedrzej.danko@gmail.com"
+                }
+            ],
+            "transport-options": {
+                "relative": true
+            }
+        },
         {
             "name": "psr/cache",
             "version": "3.0.0",
@@ -2415,7 +2502,11 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "oro-chain/foo-bundle": 20,
+        "oro-chain/bar-bundle": 20,
+        "oro-chain/chain-command-bundle": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

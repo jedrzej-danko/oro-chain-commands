@@ -1,0 +1,13 @@
+chain_command:
+
+  chains:
+
+    foo_hello:
+      startsWith: foo:hello
+      then:
+        - bar:hi
+
+    debug:
+      startsWith: debug:config
+      then:
+        - debug:dotenv

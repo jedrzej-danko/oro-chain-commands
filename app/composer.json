@@ -12,7 +12,10 @@
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.3.*",
         "symfony/runtime": "6.3.*",
-        "symfony/yaml": "6.3.*"
+        "symfony/yaml": "6.3.*",
+        "oro-chain/foo-bundle": "*@dev",
+        "oro-chain/bar-bundle": "*@dev",
+        "oro-chain/chain-command-bundle": "*@dev"
     },
     "require-dev": {
     },
@@ -63,5 +66,19 @@
             "allow-contrib": false,
             "require": "6.3.*"
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../foo-bundle"
+        },
+        {
+            "type": "path",
+            "url": "../bar-bundle"
+        },
+        {
+            "type": "path",
+            "url": "../chain-command-bundle"
+        }
+    ]
 }
