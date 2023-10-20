@@ -22,7 +22,7 @@ class AfterCommandListener
         $this->config = $config;
     }
 
-    public function __invoke(ConsoleTerminateEvent $event)
+    public function __invoke(ConsoleTerminateEvent $event): void
     {
         $commandName = $event->getCommand()->getName();
         $output = $event->getOutput();
@@ -35,9 +35,12 @@ class AfterCommandListener
 
         $chain = $this->config->getChainForCommand($commandName);
         if ($chain) {
-            $application = $event->getCommand()->getApplication();
-            $application->doRun()
             $output->writeln("Command $commandName has chain: ". join(',', $chain), OutputInterface::VERBOSITY_DEBUG);
+            $application = $event->getCommand()->getApplication();
+            foreach ($chain as $command) {
+                $output->writeln("Running command $command", OutputInterface::VERBOSITY_DEBUG);
+                $application->find($command)->run($event->getInput(), $output);
+            }
         } else {
             $output->writeln("Command $commandName has no chain", OutputInterface::VERBOSITY_DEBUG);
         }
