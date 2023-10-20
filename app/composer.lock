@@ -142,12 +142,13 @@
             "dist": {
                 "type": "path",
                 "url": "../chain-command-bundle",
-                "reference": "1244907ac409c497de42ed1f63edd6aa3a8b9e0e"
+                "reference": "e6dd8b7b3ae2b73ddb77a4881f5df60d0c586a73"
             },
             "require": {
                 "php": ">= 8.2",
                 "symfony/console": "^6.3",
-                "symfony/http-kernel": "^6.3"
+                "symfony/http-kernel": "^6.3",
+                "symfony/monolog-bundle": "^3.8"
             },
             "type": "symfony-bundle",
             "autoload": {
