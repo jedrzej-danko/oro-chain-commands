@@ -7,14 +7,14 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class ChainConfig
 {
-    /** @var ChainDto[] */
+    /** @var array<string, string[]> */
     private array $chains = [];
 
 
     public function __construct(ParameterBagInterface $parameterBag)
     {
-        foreach ($parameterBag->get('chain_command_bundle.chains') as $chain) {
-            $this->chains[] = new ChainDto($chain['startsWith'], $chain['then']);
+        foreach ($parameterBag->get('chain_command_bundle.chains') as $master => $chain) {
+            $this->chains[$master] = $chain['members'];
         }
     }
 
@@ -22,29 +22,24 @@ class ChainConfig
      * Returns chain initiated by the given command
      *
      * @param string $command
-     * @return ChainDto|null
+     * @return string[]|null Command chain members
      */
-    public function getChainForCommand(string $command) : ?ChainDto
+    public function getChainForCommand(string $command) : ?array
     {
-        foreach ($this->chains as $chain) {
-            if ($chain->startsWith === $command) {
-                return $chain;
-            }
-        }
-        return null;
+        return $this->chains[$command] ?? null;
     }
 
     /**
-     * Returns first chain that contains the given command
+     * Returns master command for the command found in chain
      *
      * @param string $commandName
-     * @return ChainDto|null
+     * @return string|null Name of the master command
      */
-    public function findChainContaining(string $commandName) : ?ChainDto
+    public function findChainContaining(string $commandName) : ?string
     {
-        foreach ($this->chains as $chainedCommands) {
-            if (in_array($commandName, $chainedCommands->chain)) {
-                return $chainedCommands;
+        foreach ($this->chains as $masterCommand => $chainedCommands) {
+            if (in_array($commandName, $chainedCommands)) {
+                return $masterCommand;
             }
         }
         return null;

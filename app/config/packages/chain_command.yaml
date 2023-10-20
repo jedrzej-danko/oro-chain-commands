@@ -2,12 +2,10 @@ chain_command:
 
   chains:
 
-    foo_hello:
-      startsWith: foo:hello
-      then:
+    "foo:hello":
+      members:
         - bar:hi
 
-    debug:
-      startsWith: debug:config
-      then:
+    "debug:config":
+      members:
         - debug:dotenv

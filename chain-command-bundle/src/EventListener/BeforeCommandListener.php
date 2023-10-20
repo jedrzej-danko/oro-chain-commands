@@ -39,9 +39,9 @@ class BeforeCommandListener
         $command = $event->getCommand();
         $commandName = $command->getName();
 
-        if (null !== ($chain = $this->config->findChainContaining($commandName))) {
-            $this->logger->error("Error: $commandName command is a member of {$chain->startsWith} command chain and cannot be executed on its own.");
-            $output->writeln("<error>Error: $commandName command is a member of {$chain->startsWith} command chain and cannot be executed on its own.</error>");
+        if (null !== ($masterCommand = $this->config->findChainContaining($commandName))) {
+            $this->logger->error("Error: $commandName command is a member of {$masterCommand} command chain and cannot be executed on its own.");
+            $output->writeln("<error>Error: $commandName command is a member of {$masterCommand} command chain and cannot be executed on its own.</error>");
             $event->disableCommand();
             return;
         }
@@ -54,7 +54,7 @@ class BeforeCommandListener
         $event->disableCommand();
 
         $this->logger->info("$commandName is a master command of a command chain that has registered member commands");
-        foreach ($chain->chain as $chainedCommand) {
+        foreach ($chain as $chainedCommand) {
             $this->logger->info("Command $chainedCommand is a member of $commandName command chain");
         }
 
@@ -71,7 +71,7 @@ class BeforeCommandListener
 
         $this->logger->info("Executing $commandName chain members:");
 
-        foreach ($chain->chain as $chainedCommand) {
+        foreach ($chain as $chainedCommand) {
             $result = $application->find($chainedCommand)->run($event->getInput(), $this->output);
 
             if ($result !== Command::SUCCESS) {

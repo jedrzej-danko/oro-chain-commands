@@ -15,15 +15,12 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('chains')
                     ->arrayPrototype()
                         ->children()
-                            ->scalarNode('startsWith')->end()
-                            ->arrayNode('then')
+                            ->arrayNode('members')
                                 ->scalarPrototype()->end()
                         ->end()
                     ->end()
                 ->end()
             ->end()
-//            ->arrayNode('chains')
-//
             ;
         return $treeBuilder;
     }
