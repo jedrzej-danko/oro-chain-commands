@@ -5,6 +5,11 @@ services:
     arguments:
       $parameterBag: '@parameter_bag' #'%chain_command_bundle.chains%'
 
+  chain_command_bundle.console_output:
+    class: OroChain\ChainCommandBundle\Console\LoggedConsoleOutput
+    calls:
+      - setLogger: ['@monolog.logger.chained_command']
+
   chain_command_bundle.log_formatter:
     class: OroChain\ChainCommandBundle\Logger\LogFormatter
 
@@ -12,14 +17,14 @@ services:
     class: OroChain\ChainCommandBundle\EventListener\BeforeCommandListener
     tags:
       - {name: kernel.event_listener, event: console.command}
-    arguments: ['@chain_command_bundle.config']
+    arguments: ['@chain_command_bundle.config', '@chain_command_bundle.console_output']
     calls:
       - setLogger: ['@monolog.logger.chained_command']
 
   chain_command_bundle.after_command_listener:
     class: OroChain\ChainCommandBundle\EventListener\AfterCommandListener
-    tags:
-      - { name: kernel.event_listener, event: console.terminate }
+#    tags:
+#      - { name: kernel.event_listener, event: console.terminate }
     arguments: [ '@chain_command_bundle.config' ]
     calls:
       - setLogger: [ '@monolog.logger.chained_command' ]
