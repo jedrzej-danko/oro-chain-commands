@@ -23,40 +23,33 @@ class BeforeCommandListener
     }
 
 
+    /**
+     * Just before command execution check if it is a member of a command chain
+     *
+     * @param ConsoleCommandEvent $event
+     * @return void
+     */
     public function __invoke(ConsoleCommandEvent $event) : void
     {
         $output = $event->getOutput();
         $commandName = $event->getCommand()->getName();
 
-        $output->writeln("BeforeCommandListener invoked", OutputInterface::VERBOSITY_DEBUG);
-        $output->writeln("Command: $commandName", OutputInterface::VERBOSITY_DEBUG);
-
-        if ($this->config->isChainMember($commandName)) {
-            $output->writeln("Error: " . $commandName . " command is a member of a command chain and cannot be executed on its own.", OutputInterface::VERBOSITY_QUIET);
+        if (null !== ($chain = $this->config->findChainContaining($commandName))) {
+            $this->logger->error("Error: $commandName command is a member of {$chain->startsWith} command chain and cannot be executed on its own.");
+            $output->writeln("<error>Error: $commandName command is a member of {$chain->startsWith} command chain and cannot be executed on its own.</error>");
             $event->disableCommand();
         }
 
         $chain = $this->config->getChainForCommand($commandName);
-        if ($chain) {
-            $output->writeln("Command $commandName has chain: ". join(',', $chain), OutputInterface::VERBOSITY_DEBUG);
-        } else {
-            $output->writeln("Command $commandName has no chain", OutputInterface::VERBOSITY_DEBUG);
+        if (!$chain) {
+            return;
         }
 
-
-//        if ($this->isChainMember($commandName)) {
-//            $output->writeln("Error: " . $commandName . " command is a member of a command chain and cannot be executed on its own.", OutputInterface::VERBOSITY_QUIET);
-//            $event->disableCommand();
-//        }
-    }
-
-    private function isChainMember($commandName): bool
-    {
-        foreach ($this->config->getChains() as $chainedCommands) {
-            if (in_array($commandName, $chainedCommands)) {
-                return true;
-            }
+        $this->logger->info("$commandName is a master command of a command chain that has registered member commands");
+        foreach ($chain->chain as $command) {
+            $this->logger->info("Command $command is a member of $commandName command chain");
         }
-        return false;
+        $this->logger->info("Executing $commandName command itself first");
     }
+
 }

@@ -2,12 +2,7 @@
 
 namespace OroChain\ChainCommandBundle;
 
-use OroChain\ChainCommandBundle\DependencyInjection\Configuration;
 use OroChain\ChainCommandBundle\Dto\ChainDto;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class ChainConfig
@@ -23,28 +18,35 @@ class ChainConfig
         }
     }
 
-    public function getChains(): array
-    {
-        return $this->chains;
-    }
-
-    public function getChainForCommand(string $command) : ?array
+    /**
+     * Returns chain initiated by the given command
+     *
+     * @param string $command
+     * @return ChainDto|null
+     */
+    public function getChainForCommand(string $command) : ?ChainDto
     {
         foreach ($this->chains as $chain) {
             if ($chain->startsWith === $command) {
-                return $chain->chain;
+                return $chain;
             }
         }
         return null;
     }
 
-    public function isChainMember(string $commandName): bool
+    /**
+     * Returns first chain that contains the given command
+     *
+     * @param string $commandName
+     * @return ChainDto|null
+     */
+    public function findChainContaining(string $commandName) : ?ChainDto
     {
         foreach ($this->chains as $chainedCommands) {
             if (in_array($commandName, $chainedCommands->chain)) {
-                return true;
+                return $chainedCommands;
             }
         }
-        return false;
+        return null;
     }
 }

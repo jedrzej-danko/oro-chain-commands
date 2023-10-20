@@ -10,9 +10,13 @@ services:
     tags:
       - {name: kernel.event_listener, event: console.command}
     arguments: ['@chain_command_bundle.config']
+    calls:
+      - setLogger: ['@logger']
 
   chain_command_bundle.after_command_listener:
     class: OroChain\ChainCommandBundle\EventListener\AfterCommandListener
     tags:
       - { name: kernel.event_listener, event: console.terminate }
     arguments: [ '@chain_command_bundle.config' ]
+    calls:
+      - setLogger: [ '@logger' ]

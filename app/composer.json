@@ -7,17 +7,16 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "oro-chain/bar-bundle": "*@dev",
+        "oro-chain/chain-command-bundle": "*@dev",
+        "oro-chain/foo-bundle": "*@dev",
         "symfony/console": "6.3.*",
         "symfony/dotenv": "6.3.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.3.*",
+        "symfony/monolog-bundle": "^3.8",
         "symfony/runtime": "6.3.*",
-        "symfony/yaml": "6.3.*",
-        "oro-chain/foo-bundle": "*@dev",
-        "oro-chain/bar-bundle": "*@dev",
-        "oro-chain/chain-command-bundle": "*@dev"
-    },
-    "require-dev": {
+        "symfony/yaml": "6.3.*"
     },
     "config": {
         "allow-plugins": {

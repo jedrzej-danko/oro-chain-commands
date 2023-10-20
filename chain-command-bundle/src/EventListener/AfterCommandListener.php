@@ -6,6 +6,7 @@ use OroChain\ChainCommandBundle\ChainConfig;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
+use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class AfterCommandListener
@@ -22,27 +23,37 @@ class AfterCommandListener
         $this->config = $config;
     }
 
+    /**
+     * Intercepting the master command's termination event and launching the chain
+     *
+     * @param ConsoleTerminateEvent $event
+     * @return void
+     * @throws ExceptionInterface
+     */
     public function __invoke(ConsoleTerminateEvent $event): void
     {
         $commandName = $event->getCommand()->getName();
-        $output = $event->getOutput();
 
-        if ($event->getExitCode() !== Command::SUCCESS) {
-            $output->writeln('Command failed, skipping chain', OutputInterface::VERBOSITY_DEBUG);
+        $chain = $this->config->getChainForCommand($commandName);
+        if (!$chain || !count($chain->chain)) {
             return;
         }
 
+        $output = $event->getOutput();
 
-        $chain = $this->config->getChainForCommand($commandName);
-        if ($chain) {
-            $output->writeln("Command $commandName has chain: ". join(',', $chain), OutputInterface::VERBOSITY_DEBUG);
-            $application = $event->getCommand()->getApplication();
-            foreach ($chain as $command) {
-                $output->writeln("Running command $command", OutputInterface::VERBOSITY_DEBUG);
-                $application->find($command)->run($event->getInput(), $output);
-            }
-        } else {
-            $output->writeln("Command $commandName has no chain", OutputInterface::VERBOSITY_DEBUG);
+        if ($event->getExitCode() !== Command::SUCCESS) {
+            $this->logger->error("Master command $commandName failed, skipping chain");
+            $output->writeln('<error>Master command failed, skipping chain</error>', OutputInterface::VERBOSITY_DEBUG);
+            return;
         }
+
+        $this->logger->info("Executing $commandName chain members:");
+
+        $application = $event->getCommand()->getApplication();
+        foreach ($chain->chain as $command) {
+            $application->find($command)->run($event->getInput(), $output);
+        }
+        $this->logger->info("Execution of $commandName chain completed");
+
     }
 }
