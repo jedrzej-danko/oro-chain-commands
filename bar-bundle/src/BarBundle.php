@@ -16,4 +16,20 @@ class BarBundle extends AbstractBundle
     {
         $container->import('../config/services.yml');
     }
+
+    public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
+    {
+        if (!$builder->hasExtension('chain_command')) {
+            return;
+        }
+        $builder->prependExtensionConfig('chain_command', [
+            'chains' => [
+                'foo:hello' => [
+                    'members' => [
+                        'bar:hi',
+                    ],
+                ],
+            ],
+        ]);
+    }
 }

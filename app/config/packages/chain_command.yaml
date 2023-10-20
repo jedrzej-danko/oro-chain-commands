@@ -2,10 +2,6 @@ chain_command:
 
   chains:
 
-    "foo:hello":
-      members:
-        - bar:hi
-
     "debug:config":
       members:
         - debug:dotenv
