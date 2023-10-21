@@ -5,29 +5,29 @@ services:
     arguments:
       $parameterBag: '@parameter_bag' #'%chain_command_bundle.chains%'
 
-  chain_command_bundle.console_output:
-    class: OroChain\ChainCommandBundle\Console\LoggedConsoleOutput
-    calls:
-      - setLogger: ['@monolog.logger.chained_command']
+#  chain_command_bundle.console_output:
+#    class: OroChain\ChainCommandBundle\Console\LoggedConsoleOutput
 
   chain_command_bundle.log_formatter:
     class: OroChain\ChainCommandBundle\Logger\LogFormatter
+
+  chain_command_bundle.exit_code_bridge:
+    class: OroChain\ChainCommandBundle\EventListener\ExitCodeBridge
 
   chain_command_bundle.before_command_listener:
     class: OroChain\ChainCommandBundle\EventListener\BeforeCommandListener
     tags:
       - {name: kernel.event_listener, event: console.command}
-    arguments: ['@chain_command_bundle.config', '@chain_command_bundle.console_output']
+    arguments: ['@chain_command_bundle.config', '@chain_command_bundle.exit_code_bridge']
     calls:
       - setLogger: ['@monolog.logger.chained_command']
 
   chain_command_bundle.after_command_listener:
     class: OroChain\ChainCommandBundle\EventListener\AfterCommandListener
-#    tags:
-#      - { name: kernel.event_listener, event: console.terminate }
-    arguments: [ '@chain_command_bundle.config' ]
-    calls:
-      - setLogger: [ '@monolog.logger.chained_command' ]
+    tags:
+      - { name: kernel.event_listener, event: console.terminate }
+    arguments: [ '@chain_command_bundle.exit_code_bridge' ]
+
 
 
 

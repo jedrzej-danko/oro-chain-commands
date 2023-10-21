@@ -3,7 +3,6 @@
 namespace OroChain\ChainCommandBundle\EventListener;
 
 use OroChain\ChainCommandBundle\ChainConfig;
-use OroChain\ChainCommandBundle\Console\LoggedConsoleOutput;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -24,8 +23,9 @@ class BeforeCommandListenerTest extends TestCase
 
     private string $masterCommand = 'test:master';
     private string $otherCommand = 'test:other';
-
     private Application $application;
+
+    private ExitCodeBridge $exitCodeBridge;
 
     protected function setUp(): void
     {
@@ -40,6 +40,7 @@ class BeforeCommandListenerTest extends TestCase
                 [$this->firstMemberCommandName, $this->firstMemberCommand],
                 [$this->secondMemberCommandName, $this->secondMemberCommand],
             ]);
+        $this->exitCodeBridge = new ExitCodeBridge();
     }
 
     public function test_it_preserves_chain_member_execution()
@@ -86,7 +87,10 @@ class BeforeCommandListenerTest extends TestCase
         $event = $this->eventFactory($command);
 
         $listener($event);
+
         self::assertTrue($event->commandShouldRun());
+        // and the ExitCodeBridge is not updated
+        self::assertFalse($this->exitCodeBridge->chainCommandWasExecuted());
     }
 
     public function test_it_runs_chain_master_command_and_the_chain_members()
@@ -101,11 +105,11 @@ class BeforeCommandListenerTest extends TestCase
             ->willReturn([$this->firstMemberCommandName, $this->secondMemberCommandName]);
 
         // I expect that the command is run in this listener
-        $command->expects($this->once())->method('run');
+        $command->expects($this->once())->method('run')->willReturn(Command::SUCCESS);
         // and the firstCommand is run in this listener
-        $this->firstMemberCommand->expects($this->once())->method('run');
+        $this->firstMemberCommand->expects($this->once())->method('run')->willReturn(Command::SUCCESS);
         // and the secondCommand is run in this listener
-        $this->secondMemberCommand->expects($this->once())->method('run');
+        $this->secondMemberCommand->expects($this->once())->method('run')->willReturn(Command::SUCCESS);;
 
         $event = $this->eventFactory($command);
 
@@ -114,6 +118,9 @@ class BeforeCommandListenerTest extends TestCase
 
         // Finally, I expect that the master command is not executed elsewhere
         self::assertFalse($event->commandShouldRun());
+        // and the ExitCodeBridge is updated with the master command's exit code
+        self::assertTrue($this->exitCodeBridge->chainCommandWasExecuted());
+        self::assertEquals(Command::SUCCESS, $this->exitCodeBridge->getExitCode());
     }
 
     public function test_if_master_command_fails_chain_is_not_executed()
@@ -137,6 +144,9 @@ class BeforeCommandListenerTest extends TestCase
 
         $listener = $this->buildListener($config);
         $listener($event);
+        // finally, I expect that ExitCodeBridge is updated with the master command's exit code
+        self::assertTrue($this->exitCodeBridge->chainCommandWasExecuted());
+        self::assertEquals(Command::FAILURE, $this->exitCodeBridge->getExitCode());
     }
 
     public function test_if_chain_member_fails_next_member_is_not_executed()
@@ -160,6 +170,10 @@ class BeforeCommandListenerTest extends TestCase
 
         $listener = $this->buildListener($config);
         $listener($event);
+
+        // finally, I expect that ExitCodeBridge is updated with the member command's exit code
+        self::assertTrue($this->exitCodeBridge->chainCommandWasExecuted());
+        self::assertEquals(Command::FAILURE, $this->exitCodeBridge->getExitCode());
     }
 
     private function eventFactory(Command $command, ?OutputInterface $output = null, ?InputInterface $input = null) : ConsoleCommandEvent
@@ -169,11 +183,11 @@ class BeforeCommandListenerTest extends TestCase
         return new ConsoleCommandEvent($command, $input, $output);
     }
 
-    private function buildListener(ChainConfig $config, ?LoggerInterface $logger = null, ?LoggedConsoleOutput $output = null) : BeforeCommandListener
+    private function buildListener(ChainConfig $config, ?LoggerInterface $logger = null) : BeforeCommandListener
     {
         $listener = new BeforeCommandListener(
             $config,
-           $output ?? $this->createMock(LoggedConsoleOutput::class)
+           $this->exitCodeBridge
         );
         $listener->setLogger($logger ?? $this->createMock(LoggerInterface::class));
         return $listener;

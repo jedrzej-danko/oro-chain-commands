@@ -3,7 +3,7 @@
 namespace OroChain\ChainCommandBundle\EventListener;
 
 use OroChain\ChainCommandBundle\ChainConfig;
-use OroChain\ChainCommandBundle\Console\LoggedConsoleOutput;
+use OroChain\ChainCommandBundle\Console\LoggedConsoleOutputDecorator;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
@@ -14,16 +14,16 @@ class BeforeCommandListener
     use LoggerAwareTrait;
 
     private ChainConfig $config;
-    private LoggedConsoleOutput $output;
+    private ExitCodeBridge $exitCodeBridge;
 
     /**
      * @param ChainConfig $config
-     * @param LoggedConsoleOutput $output
+     * @param ExitCodeBridge $exitCodeBridge
      */
-    public function __construct(ChainConfig $config, LoggedConsoleOutput $output)
+    public function __construct(ChainConfig $config, ExitCodeBridge $exitCodeBridge)
     {
         $this->config = $config;
-        $this->output = $output;
+        $this->exitCodeBridge = $exitCodeBridge;
     }
 
 
@@ -59,7 +59,9 @@ class BeforeCommandListener
         }
 
         $this->logger->info("Executing $commandName command itself first");
-        $result = $command->run($event->getInput(), $this->output);
+        $result = $command->run($event->getInput(), new LoggedConsoleOutputDecorator($event->getOutput(), $this->logger));
+
+        $this->exitCodeBridge->setExitCode($result);
 
         if ($result !== Command::SUCCESS) {
             $this->logger->error("Master command $commandName failed, skipping chain");
@@ -72,9 +74,10 @@ class BeforeCommandListener
         $this->logger->info("Executing $commandName chain members:");
 
         foreach ($chain as $chainedCommand) {
-            $result = $application->find($chainedCommand)->run($event->getInput(), $this->output);
+            $result = $application->find($chainedCommand)->run($event->getInput(), $event->getOutput());
 
             if ($result !== Command::SUCCESS) {
+                $this->exitCodeBridge->setExitCode($result);
                 $this->logger->error("Chain element $chainedCommand failed, breaking chain");
                 $output->writeln("<error>Chain element $chainedCommand failed, breaking chain</error>");
                 return;
