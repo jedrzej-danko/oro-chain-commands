@@ -9,7 +9,7 @@ class LogFormatter implements FormatterInterface
 {
     public function format(LogRecord $record)
     {
-        return sprintf("[%s] %s\n", date('Y-m-d H:i:s'), $record->message);
+        return sprintf("[%s] %s\n", $record->datetime->format('Y-m-d H:i:s'), $record->message);
     }
 
     public function formatBatch(array $records)

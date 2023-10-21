@@ -17,7 +17,6 @@ class ChainCommandExtension extends Extension implements PrependExtensionInterfa
             $container, new FileLocator(__DIR__ . '/../../config')
         );
         $loader->load('services.yml');
-//        $loader->load('monolog.yml');
 
         $container->getParameterBag()->set('chain_command_bundle.chains', $configs[0]['chains']);
     }
