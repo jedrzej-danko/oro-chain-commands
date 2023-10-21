@@ -44,9 +44,16 @@ However, there are some additional rules about the error handling:
 1. If the execution of chain master fails, none of his chain members are executed.
 2. If the execution of chain member fails, none of the following chain members are executed.
 
+### Exit codes
+
+Because chains skip the standard execution procedure, it is required to pass the correct exit code to the end of the script. Unfortunately, it's not possible to set the exit code in the `ConsoleCommandEvent` event. Because of this another class, `ExitCodeBridge` is used to pass the real exit code between `BeforeCommandListener` and `AfterCommandListener`, where the exit code is finally set.
+
+The exit code equals to the exit code of the last command executed in the chain. Please remember, that the chain breaks on the first non-success exit code.
+
 ### Logging
 
-ChainCommandBundle creates its own logging channel, named `chained_command`. By default, this log creates separated log file in the `var/log` directory. The log consist of some debug information about command execution and the whole output of the executed command. If you don't want to log command output, you need to modify the implementation of `chain_command_bundle.console_output` service.
+ChainCommandBundle creates its own logging channel, named `chained_command`. By default, this log creates separated log file in the `var/log` directory (named `chained_command.log`). The log consist of some debug information about command execution and the whole output of the executed command.
+In order to log command output, the `\OroChain\ChainCommandBundle\Console\LoggedConsoleOutputDecorator` was created. It is a decorator for any output object used by the Symfony Console.
 
 The default log format is different from the standard one. The formatting is done by the `\OroChain\ChainCommandBundle\Logger\LogFormatter` class. You may modify the default formatter by replacing the service of `chain_command_bundle.log_formatter` with your own implementation.
 
