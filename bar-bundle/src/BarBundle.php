@@ -22,14 +22,19 @@ class BarBundle extends AbstractBundle
         if (!$builder->hasExtension('chain_command')) {
             return;
         }
-        $builder->prependExtensionConfig('chain_command', [
-            'chains' => [
-                'foo:hello' => [
-                    'members' => [
-                        'bar:hi',
-                    ],
+        $config = $builder->getExtensionConfig('chain_command');
+        $chains =  $config[0]['chains'] ?? [];
+        if (array_key_exists('foo:hello', $chains)) {
+            $chains['foo:hello']['members'][] = 'bar:hi';
+        } else {
+            $chains['foo:hello'] = [
+                'members' => [
+                    'bar:hi',
                 ],
-            ],
+            ];
+        }
+        $builder->prependExtensionConfig('chain_command', [
+            'chains' => $chains,
         ]);
     }
 }
